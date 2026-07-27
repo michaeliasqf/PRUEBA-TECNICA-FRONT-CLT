@@ -5,16 +5,18 @@ import type { ChangeEvent, ReactNode } from "react";
 
 interface SearchInputProps {
   value: string;
-  // El estado pertenece al catálogo; el input comunica cada nuevo texto.
+  // El padre conserva el estado; este componente solo comunica el nuevo texto.
   onChange: (value: string) => void;
 }
 
 export function SearchInput({ value, onChange }: SearchInputProps) {
+  // Extraemos el texto del evento antes de enviarlo a ProductCatalog.
   const handleChange = (event: ChangeEvent<HTMLInputElement>) =>
     onChange(event.target.value);
 
   let clearButton: ReactNode = null;
 
+  // El botón para limpiar solo tiene sentido cuando existe texto.
   if (value) {
     clearButton = (
       <button type="button" onClick={() => onChange("")} aria-label="Limpiar búsqueda">
@@ -30,7 +32,7 @@ export function SearchInput({ value, onChange }: SearchInputProps) {
         type="search"
         placeholder="Buscar por nombre..."
         aria-label="Buscar productos por nombre"
-        // Es un input controlado: el valor siempre proviene del estado del padre.
+        // Input controlado: su valor siempre proviene del estado query del catálogo.
         value={value}
         onChange={handleChange}
       />

@@ -2,15 +2,15 @@
 
 import { useEffect, useState } from "react";
 
-// Retrasa la actualización para no consultar la API por cada tecla.
-// El genérico T conserva el tipo del valor recibido; aquí se utiliza con string.
+// Retrasa la actualización de un valor para no consultar la API por cada tecla.
+// El genérico T mantiene el tipo recibido; en este proyecto el valor es un string.
 export function useDebouncedValue<T>(value: T, delay = 300): T {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
   useEffect(() => {
-    // Solo confirmamos el valor si transcurre el tiempo indicado sin otro cambio.
+    // El valor se confirma solo si pasa el tiempo indicado sin otro cambio.
     const timeout = window.setTimeout(() => setDebouncedValue(value), delay);
-    // Una nueva tecla cancela el temporizador anterior y comienza otra espera.
+    // Si el usuario escribe antes de 300 ms, cancelamos el timeout anterior.
     return () => window.clearTimeout(timeout);
   }, [value, delay]);
 

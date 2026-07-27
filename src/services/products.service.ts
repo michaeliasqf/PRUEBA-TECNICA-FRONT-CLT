@@ -1,5 +1,5 @@
 import { api } from "@/services/api";
-import type { ProductsQuery, ProductsResponse } from "@/types/product";
+import type { Product, ProductsQuery, ProductsResponse } from "@/types/product";
 
 // Obtiene una página del catálogo o de los resultados de búsqueda.
 // La interfaz trabaja con páginas, mientras DummyJSON espera limit y skip.
@@ -13,14 +13,21 @@ export async function getProducts(
   const params: { limit: number; skip: number; q?: string } = { limit, skip };
 
   if (search) {
-    // DummyJSON utiliza este endpoint para buscar con el texto ingresado.
+    // DummyJSON usa este endpoint para buscar productos con el texto ingresado.
     endpoint = "/products/search";
     params.q = search;
   }
 
+  // El genérico indica que esperamos ProductsResponse dentro de data.
   const { data } = await api.get<ProductsResponse>(endpoint, {
     params,
   });
 
+  return data;
+}
+
+// Obtiene un solo producto para la ruta dinámica /products/[id].
+export async function getProduct(id: number): Promise<Product> {
+  const { data } = await api.get<Product>(`/products/${id}`);
   return data;
 }

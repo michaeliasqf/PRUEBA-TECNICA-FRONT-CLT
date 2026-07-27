@@ -14,19 +14,19 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 
 export function ProductCatalog() {
   const dispatch = useAppDispatch();
+  // Leemos en una sola selección todo el estado de productos administrado por Redux.
   const { items, status, error, page, hasMore, total, search } = useAppSelector(
     (state) => state.products,
   );
-
   // query cambia con cada tecla; search cambia en Redux después del debounce.
   const [query, setQuery] = useState(search);
-  // El requisito pide esperar 300 ms para evitar una solicitud por cada tecla.
+  // El requisito pide esperar 300 ms antes de buscar para evitar una petición por tecla.
   const debouncedQuery = useDebouncedValue(query.trim(), 300);
   // Esta referencia apunta al área final que observa IntersectionObserver.
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Una búsqueda confirmada reinicia Redux y solicita la primera página.
+    // Cada búsqueda confirmada reinicia Redux y solicita nuevamente la primera página.
     dispatch(setSearch(debouncedQuery));
     dispatch(
       fetchProducts({
@@ -37,7 +37,7 @@ export function ProductCatalog() {
     );
   }, [debouncedQuery, dispatch]);
 
-  // Pull to refresh vuelve a pedir la primera página de la búsqueda activa.
+  // Pull to refresh vuelve a solicitar la primera página de la búsqueda activa.
   const handleRefresh = useCallback(async () => {
     dispatch(setSearch(debouncedQuery));
     await dispatch(
@@ -46,17 +46,20 @@ export function ProductCatalog() {
         limit: PAGE_SIZE,
         search: debouncedQuery,
       }),
+      // unwrap permite que el hook espere el éxito o reciba el rechazo del thunk.
     ).unwrap();
   }, [debouncedQuery, dispatch]);
 
   const { distance, refreshing } = usePullToRefresh(handleRefresh);
 
-  // Solicita la página siguiente sin eliminar las tarjetas que ya se muestran.
+  // Solicita la página siguiente sin borrar los productos que ya se muestran.
   const loadMore = useCallback(() => {
+    // Evita peticiones duplicadas mientras una página sigue cargando.
     if (status === "loading") {
       return;
     }
 
+    // Cuando Redux determina que alcanzamos el total, no pedimos más páginas.
     if (!hasMore) {
       return;
     }
@@ -77,27 +80,29 @@ export function ProductCatalog() {
       return;
     }
 
-    // Observamos el final del listado para implementar el scroll infinito.
+    // Observamos un elemento al final de la lista para implementar scroll infinito.
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           loadMore();
         }
       },
-      // La siguiente página comienza a cargar antes de llegar al final visible.
+      // Carga 240 px antes de llegar al final para reducir la espera visible.
       { rootMargin: "240px" },
     );
 
     observer.observe(target);
 
+    // Desconectamos el observer al desmontar o cuando cambia loadMore.
     return () => {
       observer.disconnect();
     };
   }, [loadMore]);
 
-  // La carga inicial utiliza skeleton; las siguientes conservan los productos visibles.
+  // La primera carga usa un skeleton completo; las páginas siguientes conservan las tarjetas.
   const initialLoading = status === "loading" && items.length === 0;
 
+  // Estas variables permiten resolver los estados con if explícitos y mantener limpio el JSX final.
   let pullIndicatorClass = "pullIndicator";
   let pullIconClass = "";
   let pullText = "Deslizá para actualizar";
@@ -106,6 +111,7 @@ export function ProductCatalog() {
   let catalogContent: ReactNode = null;
   let loadMoreContent: ReactNode = null;
 
+  // Muestra el indicador mientras el usuario arrastra o la actualización está ejecutándose.
   if (distance > 0 || refreshing) {
     pullIndicatorClass = "pullIndicator visible";
   }
@@ -114,6 +120,7 @@ export function ProductCatalog() {
     pullIconClass = "spin";
     pullText = "Actualizando...";
   } else if (distance >= 72) {
+    // El texto cambia al alcanzar el mismo umbral definido en usePullToRefresh.
     pullText = "Soltá para actualizar";
   }
 
@@ -125,8 +132,10 @@ export function ProductCatalog() {
     resultCount = <span className="resultCount">{total} productos</span>;
   }
 
+  // Estado 1: carga inicial.
   if (initialLoading) {
     catalogContent = <ProductGridSkeleton />;
+  // Estado 2: error inicial, todavía sin productos para mostrar.
   } else if (status === "failed" && items.length === 0) {
     let errorMessage = "No pudimos cargar los productos.";
 
@@ -148,9 +157,11 @@ export function ProductCatalog() {
         }}
       />
     );
+  // Estado 3: la búsqueda terminó correctamente pero no encontró coincidencias.
   } else if (items.length === 0) {
-    catalogContent = <EmptyState />;
+    catalogContent = <EmptyState type="search" />;
   } else {
+    // Estado 4: convertimos cada producto de Redux en una tarjeta.
     catalogContent = (
       <div className="productGrid">
         {items.map((product) => (
@@ -160,6 +171,7 @@ export function ProductCatalog() {
     );
   }
 
+  // Una carga adicional usa un indicador pequeño para no reemplazar el listado existente.
   if (status === "loading" && items.length > 0) {
     loadMoreContent = (
       <span className="loadingMore">
@@ -168,14 +180,14 @@ export function ProductCatalog() {
       </span>
     );
   } else if (status === "failed" && items.length > 0) {
-    // Un error adicional no elimina los productos cargados previamente.
+    // Si falla una página adicional, conservamos lo anterior y permitimos reintentar.
     loadMoreContent = (
       <button className="secondaryButton" type="button" onClick={loadMore}>
         Reintentar carga
       </button>
     );
   } else if (hasMore && items.length > 0) {
-    // El botón queda como alternativa accesible al scroll automático.
+    // El botón es una alternativa accesible al scroll infinito automático.
     loadMoreContent = (
       <button className="textButton" type="button" onClick={loadMore}>
         Cargar más
@@ -193,6 +205,7 @@ export function ProductCatalog() {
         style={{ transform: `translateY(${Math.max(0, distance - 48)}px)` }}
         aria-live="polite"
       >
+        {/* El texto dinámico se anuncia de forma no intrusiva a lectores de pantalla. */}
         <RefreshCw size={18} className={pullIconClass} />
         {pullText}
       </div>
@@ -203,6 +216,7 @@ export function ProductCatalog() {
             <h1 id="catalog-title">{catalogTitle}</h1>
             {resultCount}
           </div>
+          {/* SearchInput es controlado: ProductCatalog conserva su valor en query. */}
           <SearchInput value={query} onChange={setQuery} />
         </div>
 

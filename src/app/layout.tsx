@@ -4,8 +4,9 @@ import { Header } from "@/components/layout/Header";
 import { StoreProvider } from "@/store/StoreProvider";
 import "./globals.css";
 
+// Metadata compartida por todas las rutas; las páginas pueden sobrescribir el título.
 export const metadata: Metadata = {
-  title: "Productos | Prueba técnica CLT",
+  title: { default: "Productos | Prueba técnica CLT", template: "%s | CLT" },
   description: "Catálogo de productos desarrollado para la prueba técnica Frontend de CLT",
 };
 
@@ -13,7 +14,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="es">
       <body>
-        {/* Redux envuelve el catálogo para compartir su estado con los componentes. */}
+        {/* Redux envuelve toda la aplicación para compartir productos y favoritos. */}
         <StoreProvider>
           <Header />
           {children}

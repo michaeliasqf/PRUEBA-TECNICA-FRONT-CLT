@@ -2,26 +2,17 @@
 
 import { useEffect } from "react";
 
-// Este límite captura errores de render no controlados por el estado de Redux.
-export default function GlobalError({
-  error,
-  reset,
-}: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
-  useEffect(() => {
-    console.error(error);
-  }, [error]);
-
+// Next.js renderiza este límite cuando ocurre un error no controlado en una ruta.
+export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  // Dejamos el error técnico en consola y mostramos un mensaje simple al usuario.
+  useEffect(() => { console.error(error); }, [error]);
   return (
-    <main className="pageShell errorPage">
+    <main className="pageShell notFound">
       <span>Ups</span>
       <h1>No pudimos mostrar esta página</h1>
       <p>Ocurrió un error inesperado. Intentá nuevamente.</p>
-      <button className="primaryButton" type="button" onClick={reset}>
-        Reintentar
-      </button>
+      {/* reset solicita a Next.js volver a renderizar la ruta que falló. */}
+      <button className="primaryButton" type="button" onClick={reset}>Reintentar</button>
     </main>
   );
 }

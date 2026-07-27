@@ -1,10 +1,6 @@
 import { ProductCatalog } from "@/components/products/ProductCatalog";
 
-// La ruta principal delega la carga y presentación al catálogo.
+// Ruta principal: delega la lógica de listado y búsqueda al catálogo.
 export default function HomePage() {
-  return (
-    <main>
-      <ProductCatalog />
-    </main>
-  );
+  return <main><ProductCatalog /></main>;
 }

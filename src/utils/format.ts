@@ -9,7 +9,8 @@ export const formatPrice = (value: number): string => {
   return formatter.format(value);
 };
 
-// Algunas categorías pueden venir con guiones; las convertimos en un texto legible.
+// Algunas categorías pueden venir con guiones (por ejemplo, mobile-accessories).
+// Separamos esas palabras y capitalizamos cada una para mostrarlas de forma legible.
 export const formatCategory = (value: string): string =>
   value
     .split("-")
