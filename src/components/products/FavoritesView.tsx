@@ -2,18 +2,20 @@
 
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ProductCard } from "@/components/products/ProductCard";
+import { useIsClient } from "@/hooks/useIsClient";
 import { useAppSelector } from "@/store/hooks";
 import type { ReactNode } from "react";
 
 export function FavoritesView() {
+  const isClient = useIsClient();
   // Redux contiene los productos por ID y avisa cuándo terminó de leer localStorage.
   const { entities, hydrated } = useAppSelector((state) => state.favorites);
   // Para renderizar tarjetas convertimos el objeto indexado en un array.
   const products = Object.values(entities);
   let content: ReactNode;
 
-  if (!hydrated) {
-    // Evita mostrar por un instante el estado vacío antes de recuperar localStorage.
+  if (!isClient || !hydrated) {
+    // El servidor y el primer render del navegador muestran el mismo placeholder.
     content = <div className="favoritesPlaceholder" aria-label="Cargando favoritos" />;
   } else if (products.length === 0) {
     content = <EmptyState type="favorites" />;

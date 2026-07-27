@@ -4,8 +4,14 @@ import type { ReactNode } from "react";
 import type { Product } from "@/types/product";
 import { formatCategory, formatPrice } from "@/utils/format";
 
-export function ProductCard({ product }: { product: Product }) {
+interface ProductCardProps {
+  product: Product;
+  eagerImage?: boolean;
+}
+
+export function ProductCard({ product, eagerImage = false }: ProductCardProps) {
   let discountBadge: ReactNode = null;
+  let imageLoading: "eager" | "lazy" = "lazy";
 
   // Mostramos la etiqueta solamente cuando el descuento supera el 10 %.
   if (product.discountPercentage > 10) {
@@ -14,6 +20,11 @@ export function ProductCard({ product }: { product: Product }) {
         -{Math.round(product.discountPercentage)}%
       </span>
     );
+  }
+
+  if (eagerImage) {
+    // Las primeras tarjetas son visibles al abrir la página y conviene cargarlas antes.
+    imageLoading = "eager";
   }
 
   return (
@@ -25,6 +36,7 @@ export function ProductCard({ product }: { product: Product }) {
             src={product.thumbnail}
             alt={product.title}
             fill
+            loading={imageLoading}
             // Ayuda a Next.js a servir un tamaño apropiado según el ancho de pantalla.
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />

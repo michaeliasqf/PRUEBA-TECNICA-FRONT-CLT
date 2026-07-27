@@ -2,6 +2,7 @@
 
 import { Heart } from "lucide-react";
 import { toggleFavorite } from "@/features/favorites/favoritesSlice";
+import { useIsClient } from "@/hooks/useIsClient";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import type { Product } from "@/types/product";
 
@@ -11,10 +12,13 @@ interface FavoriteButtonProps {
 
 export function FavoriteButton({ product }: FavoriteButtonProps) {
   const dispatch = useAppDispatch();
+  const isClient = useIsClient();
   // Consultamos por ID para saber si el producto ya está guardado en Redux.
-  const isFavorite = useAppSelector(
+  const storedAsFavorite = useAppSelector(
     (state) => Boolean(state.favorites.entities[product.id]),
   );
+  // El primer render debe coincidir con el servidor; después usamos el valor persistido.
+  const isFavorite = isClient && storedAsFavorite;
 
   let label = "Agregar a favoritos";
   let className = "favoriteButton";

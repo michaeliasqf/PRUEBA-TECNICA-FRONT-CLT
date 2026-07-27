@@ -164,9 +164,22 @@ export function ProductCatalog() {
     // Estado 4: convertimos cada producto de Redux en una tarjeta.
     catalogContent = (
       <div className="productGrid">
-        {items.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+        {items.map((product, index) => {
+          let eagerImage = false;
+
+          // En escritorio las primeras cuatro tarjetas quedan por encima del pliegue.
+          if (index < 4) {
+            eagerImage = true;
+          }
+
+          return (
+            <ProductCard
+              key={product.id}
+              product={product}
+              eagerImage={eagerImage}
+            />
+          );
+        })}
       </div>
     );
   }

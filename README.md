@@ -93,9 +93,8 @@ GET /products/search?q=phone&limit=12&skip=0
 GET /products/:id
 ```
 
-## Validación
-
-Antes de entregar:
+## Verificación del proyecto
+Lint y compilación
 
 ```powershell
 pnpm lint
