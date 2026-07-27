@@ -1,0 +1,11 @@
+# Dependencias y archivos generados por Next.js/TypeScript.
+node_modules
+.next
+
+# Las variables locales pueden contener configuraciones propias de cada entorno.
+.env*.local
+
+# Archivos temporales que no forman parte del código fuente.
+*.log
+*.tsbuildinfo
+.DS_Store

@@ -1,0 +1,5 @@
+# pnpm requiere aprobar explícitamente las dependencias que ejecutan scripts al instalarse.
+allowBuilds:
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
