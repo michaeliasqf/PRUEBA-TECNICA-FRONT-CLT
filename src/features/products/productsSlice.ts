@@ -1,6 +1,6 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { getProducts } from "@/services/products.service";
-import type { Product } from "@/types/product";
+import type { Product, ProductsQuery } from "@/types/product";
 
 // Estos estados permiten que la interfaz distinga carga, éxito y error.
 export type RequestStatus = "idle" | "loading" | "succeeded" | "failed";
@@ -9,20 +9,31 @@ interface ProductsState {
   items: Product[];
   status: RequestStatus;
   error: string | null;
+  page: number;
+  hasMore: boolean;
+  total: number;
+  search: string;
 }
+
+// Cantidad fija de productos que se solicita en cada página.
+export const PAGE_SIZE = 12;
 
 const initialState: ProductsState = {
   items: [],
   status: "idle",
   error: null,
+  page: 1,
+  hasMore: true,
+  total: 0,
+  search: "",
 };
 
-// El thunk conecta Redux con el servicio que utiliza Axios.
+// El thunk conecta Redux con el servicio Axios y recibe búsqueda y paginación.
 export const fetchProducts = createAsyncThunk(
   "products/fetch",
-  async (_, { rejectWithValue }) => {
+  async (query: ProductsQuery, { rejectWithValue }) => {
     try {
-      return await getProducts();
+      return await getProducts(query);
     } catch {
       return rejectWithValue("No pudimos cargar los productos. Verificá tu conexión.");
     }
@@ -32,7 +43,15 @@ export const fetchProducts = createAsyncThunk(
 const productsSlice = createSlice({
   name: "products",
   initialState,
-  reducers: {},
+  reducers: {
+    // Una búsqueda nueva comienza desde la primera página y elimina los resultados anteriores.
+    setSearch(state, action: PayloadAction<string>) {
+      state.search = action.payload;
+      state.page = 1;
+      state.hasMore = true;
+      state.items = [];
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchProducts.pending, (state) => {
@@ -40,7 +59,19 @@ const productsSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchProducts.fulfilled, (state, action) => {
-        state.items = action.payload.products;
+        const { products, total, skip, limit } = action.payload;
+
+        if (skip === 0) {
+          // Primera página o búsqueda nueva: reemplazamos el listado.
+          state.items = products;
+        } else {
+          // Scroll infinito: agregamos la página nueva al final de las anteriores.
+          state.items = [...state.items, ...products];
+        }
+
+        state.total = total;
+        state.page = Math.floor(skip / limit) + 1;
+        state.hasMore = state.items.length < total;
         state.status = "succeeded";
       })
       .addCase(fetchProducts.rejected, (state, action) => {
@@ -55,4 +86,5 @@ const productsSlice = createSlice({
   },
 });
 
+export const { setSearch } = productsSlice.actions;
 export default productsSlice.reducer;

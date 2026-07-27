@@ -102,6 +102,10 @@ button {
 
 .catalogToolbar {
   margin-bottom: 32px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 30px;
 }
 
 .catalogToolbar h1 {
@@ -112,6 +116,50 @@ button {
 .resultCount {
   color: var(--text-muted);
   font-size: 0.84rem;
+}
+
+/* Buscador controlado por ProductCatalog. */
+.searchField {
+  width: min(360px, 42vw);
+  height: 46px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.searchField:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(30, 65, 140, 0.1);
+}
+
+.searchField svg {
+  flex: 0 0 auto;
+  color: var(--text-muted);
+}
+
+.searchField input {
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  color: var(--text);
+  background: transparent;
+}
+
+.searchField input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.searchField button {
+  padding: 3px;
+  display: grid;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
 }
 
 /* Grilla responsive y tarjetas de productos. */
@@ -227,6 +275,34 @@ button {
   width: 58%;
 }
 
+/* Zona observada por IntersectionObserver y controles de paginación. */
+.loadMoreArea {
+  min-height: 90px;
+  display: grid;
+  place-items: center;
+}
+
+.loadingMore,
+.endMessage {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.textButton {
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  color: var(--primary);
+  background: transparent;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 /* Estado de error recuperable. */
 .errorState {
   padding: 28px;
@@ -277,6 +353,67 @@ button {
   background: var(--surface);
 }
 
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+/* Indicador visual del gesto pull to refresh en pantallas táctiles. */
+.pullIndicator {
+  position: fixed;
+  z-index: 20;
+  top: 76px;
+  left: 50%;
+  padding: 8px 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 20px;
+  color: var(--surface);
+  background: var(--primary);
+  font-size: 0.74rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.pullIndicator.visible {
+  opacity: 1;
+}
+
+.emptyState {
+  min-height: 300px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border: 1px dashed #c9ced5;
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.emptyIcon {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+.emptyState h2 {
+  margin: 20px 0 7px;
+  font-size: 1.5rem;
+}
+
+.emptyState p {
+  max-width: 420px;
+  margin: 0 0 22px;
+  color: var(--text-muted);
+}
+
 .errorPage {
   display: flex;
   flex-direction: column;
@@ -312,6 +449,12 @@ button {
   }
 }
 
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
@@ -323,6 +466,15 @@ button {
   .productGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
+  }
+
+  .catalogToolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .searchField {
+    width: 100%;
   }
 }
 
@@ -352,6 +504,10 @@ button {
     align-items: flex-start;
     flex-direction: column;
     gap: 4px;
+  }
+
+  .pullIndicator {
+    top: 65px;
   }
 
   .errorState {

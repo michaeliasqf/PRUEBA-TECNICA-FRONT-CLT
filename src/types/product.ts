@@ -19,3 +19,10 @@ export interface ProductsResponse {
   skip: number;
   limit: number;
 }
+
+// Datos que el catálogo entrega al servicio para buscar y paginar.
+export interface ProductsQuery {
+  page: number;
+  limit: number;
+  search: string;
+}

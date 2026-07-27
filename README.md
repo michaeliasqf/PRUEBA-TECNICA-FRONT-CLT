@@ -2,17 +2,20 @@
 
 Aplicación desarrollada con Next.js, TypeScript, Redux Toolkit y Axios.
 
-## Primera etapa
+## Segunda etapa
 
 Esta versión funcional incluye:
 
 - Estructura base de la aplicación.
 - Instancia configurada de Axios.
 - Estado de productos con Redux Toolkit.
-- Primera página del catálogo.
+- Paginación real mediante `limit` y `skip`.
 - Loading mediante skeleton.
 - Manejo de errores con opción de reintentar.
 - Tarjetas responsive de productos.
+- Búsqueda con debounce de 300 ms.
+- Scroll infinito con botón alternativo.
+- Pull to refresh en dispositivos táctiles.
 
 ## Ejecutar
 
